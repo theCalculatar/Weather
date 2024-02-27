@@ -6,29 +6,99 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".ScrollingActivity"
-    tools:showIn="@layout/activity_scrolling">
+    tools:showIn="@layout/activity_scrolling"
+    >
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/text_margin"
         android:orientation="vertical"
         android:text="@string/large_text">
-        <TextView
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/current_temp"
-            />
-        <TextView
-            android:layout_width="wrap_content"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/current_temp"
+                android:text="22℃"
+                android:textSize="100sp"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/looks_like"
+                android:layout_below="@id/current_temp"
+                android:textSize="27sp"
+
+                android:text="Cloudy"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/lower_temp"
+                android:layout_below="@id/looks_like"
+                android:text="19℃"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/higher_temp"
+                android:layout_below="@id/looks_like"
+                android:layout_toEndOf="@id/lower_temp"
+                android:layout_marginStart="@dimen/text_margin"
+                android:text="21℃"
+                />
+        </RelativeLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/max_temp"
-            />
-        <TextView
-            android:layout_width="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/backgroud_round_18dp"
+            android:backgroundTint="#40F06292"
+            android:layout_marginTop="@dimen/text_margin"
+            android:layout_marginBottom="@dimen/text_margin"
+            >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/text_margin"
+                android:text="@string/hourly_forecast"/>
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/hourly_forecast_recycler"
+                tools:itemCount="4"
+                />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/min_temp"
-            />
+            android:orientation="vertical"
+            android:background="@drawable/backgroud_round_18dp"
+            android:backgroundTint="#40F06292"
+            android:layout_marginTop="@dimen/text_margin"
+            android:layout_marginBottom="@dimen/text_margin"
+            >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/text_margin"
+                android:text="@string/weakly_forecast"/>
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/daily_forecast_recycler"
+                tools:itemCount="4"
+                />
+
+        </LinearLayout>
+        <include layout="@layout/layout_extras"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"/>
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>
