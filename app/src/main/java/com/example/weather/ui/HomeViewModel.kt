@@ -31,14 +31,18 @@ class HomeViewModel:ViewModel() {
                 call: Call<ResponseApi>,
                 response: Response<ResponseApi>
             ) {
-                Log.d("leeApi", response.body()?.message!!.toString())
-
                 if (response.code() == 200) {
                     _data.postValue(response.body())
+                }else{
+                    _error.postValue(CityResponseApi(
+                        "405", "Time out!", null
+                    ))
                 }
             }
             override fun onFailure(call: Call<ResponseApi>, t: Throwable) {
-                Log.d("leeApi",t.message!!)
+                _error.postValue(CityResponseApi(
+                    "405", "Time out!", null
+                ))
             }
 
         })
@@ -70,7 +74,9 @@ class HomeViewModel:ViewModel() {
                     }
                 }
                 override fun onFailure(call: Call<CityResponseApi>, t: Throwable) {
-                    Log.d("leeApi",t.message!!)
+                    _error.postValue(CityResponseApi(
+                        "405", "Time out!", null
+                    ))
                 }
 
             })

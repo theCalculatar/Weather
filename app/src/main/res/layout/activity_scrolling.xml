@@ -14,6 +14,7 @@
         android:layout_height="@dimen/app_bar_height"
         android:fitsSystemWindows="true"
         app:elevation="0dp"
+        android:theme="@style/Theme.Weather"
         android:backgroundTint="@android:color/transparent"
         >
 
@@ -22,8 +23,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
+            app:statusBarScrim="@android:color/transparent"
+
             android:background="@android:color/transparent"
             app:expandedTitleMarginStart="@dimen/text_margin"
+            app:collapsedTitleTextColor="@color/white"
+            app:expandedTitleTextColor="@color/white"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
             app:toolbarId="@+id/toolbar">
 

@@ -6,6 +6,7 @@ class Current(
     val sunset:Long,
     val temp: Double,
     val feels_like: Double,
+    val dew_point: Double,
     val pressure: Double,
     val humidity: Int,
     val uvi: Double,
