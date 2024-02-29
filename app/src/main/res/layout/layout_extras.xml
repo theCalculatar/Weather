@@ -4,11 +4,12 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="@drawable/backgroud_round_18dp"
-    android:backgroundTint="#5BBB86FC"
+    android:backgroundTint="#40FBFBFB"
     android:padding="@dimen/text_margin">
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textStyle="bold"
         android:text="@string/details"
         />
     <LinearLayout
@@ -26,14 +27,15 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/precipitation"
+                android:text="@string/uv"
+                android:textSize="11sp"
+                android:textColor="@color/grey"
+
                 />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/precipitation"
-                android:textSize="16sp"
-
+                android:id="@+id/uv"
                 />
 
         </LinearLayout>
@@ -48,6 +50,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/ene_wind"
                 android:id="@+id/wind_direction"
+                android:textColor="@color/grey"
 
                 />
             <TextView
@@ -76,6 +79,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/hum"
+                android:textColor="@color/grey"
 
                 />
             <TextView
@@ -97,6 +101,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/visibility"
+                android:textColor="@color/grey"
 
                 />
             <TextView
@@ -124,17 +129,19 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/uv"
-                android:textSize="11sp"
-
+                android:text="@string/precipitation"
+                android:textColor="@color/grey"
                 />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/uv"
+                android:id="@+id/precipitation"
+                android:textSize="16sp"
+
                 />
 
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -145,6 +152,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/pressure"
+                android:textColor="@color/grey"
+
                 />
             <TextView
                 android:layout_width="wrap_content"

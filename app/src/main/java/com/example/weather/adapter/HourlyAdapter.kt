@@ -41,7 +41,7 @@ class HourlyAdapter(private val hourlyArray: ArrayList<Hourly>):RecyclerView.Ada
         }else date
 
 
-        weather.main.also {
+        "${hour.temp.toInt()}℃".also {
             holder.main.text = it
         }
         Glide.with(holder.itemView.context)
