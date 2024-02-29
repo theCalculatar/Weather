@@ -24,6 +24,7 @@
         android:textSize="16sp"
         android:background="@drawable/backgroud_round_18dp_outline"
         android:textColor="@color/white"
+        android:textColorHint="@color/grey"
         android:gravity="center" />
 
     <TextView
