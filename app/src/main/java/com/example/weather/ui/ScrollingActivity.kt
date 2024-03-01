@@ -1,7 +1,12 @@
 package com.example.weather.ui
 
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.Icon
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -9,10 +14,8 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.weather.GpsTracker
 import com.example.weather.R
 import com.example.weather.adapter.DailyAdapter
@@ -21,7 +24,6 @@ import com.example.weather.databinding.ActivityScrollingBinding
 import com.example.weather.model.Coord
 import com.example.weather.model.Daily
 import com.example.weather.model.Hourly
-import com.google.gson.Gson
 
 
 class ScrollingActivity : AppCompatActivity() {
@@ -29,6 +31,7 @@ class ScrollingActivity : AppCompatActivity() {
     private lateinit var binding: ActivityScrollingBinding
     private var locationPermissionGranted = false
     private lateinit var viewModel:HomeViewModel
+    var coord :Coord? =null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -55,44 +58,35 @@ class ScrollingActivity : AppCompatActivity() {
         val hum = binding.scrollView.dailyExtras.hum
         val uv = binding.scrollView.dailyExtras.uv
         val wind = binding.scrollView.dailyExtras.wind
-        val dew_point = binding.scrollView.dailyExtras.windDirection
         val pressure = binding.scrollView.dailyExtras.pressure
         val visibility = binding.scrollView.dailyExtras.visibility
 
         val hourlyRecycler = binding.scrollView.hourlyForecastRecycler
         val dailyRecycler = binding.scrollView.dailyForecastRecycler
-        val progress = binding.scrollView.progressBar
 
         swipeRefreshLayout.isRefreshing = true
+
+        var fromSearch = false
 
         hourlyRecycler.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,false)
         dailyRecycler.layoutManager = LinearLayoutManager(this)
 
-        var coord :Coord? =null
-        //initialize location service
-        val gpsTracker = GpsTracker(this)
-        if (gpsTracker.canGetLocation()) {
-            val latitude: Double = gpsTracker.getLatitude()
-            val longitude: Double = gpsTracker.getLongitude()
-            if (latitude == 0.0){
-                val intent = Intent(this,CitySearch::class.java)
-                startActivityForResult(intent,1)
-            }else{
-                coord = Coord(latitude,longitude)
-                viewModel.getDataCord(latitude,longitude)
-            }
-        } else {
-            gpsTracker.showSettingsAlert()
+        val cm = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
+
+        if (activeNetwork?.isConnectedOrConnecting == true){
+            getLocation()
+        }else{
+            swipeRefreshLayout.isRefreshing = false
+            Toast.makeText(this,"Please enable network and reload",Toast.LENGTH_SHORT)
+                .show()
         }
 
-
-
-
         viewModel.error.observe(this){
-            binding.toolbarLayout.title = "Weather"
             swipeRefreshLayout.isRefreshing = (it == null)
             it?:return@observe
             it.city?.let { city->
+                fromSearch = true
                 binding.toolbarLayout.title = city.name
                 coord = it.city.coord
             }
@@ -101,10 +95,28 @@ class ScrollingActivity : AppCompatActivity() {
         }
 
         swipeRefreshLayout.setOnRefreshListener {
-            coord?.let { viewModel.getDataCord(it.lat,it.lon)}
+            if (activeNetwork?.isConnectedOrConnecting == false){
+                swipeRefreshLayout.isRefreshing = false
+                Toast.makeText(this, "Please enable network and reload", Toast.LENGTH_SHORT)
+                    .show()
+                return@setOnRefreshListener
+            }
+            getLocation()
         }
 
         viewModel.data.observe(this){
+
+
+//            binding.icon.setImageResource(R.drawable.sun)
+            it.current.weather[0].icon.also { icon->
+//                if (icon.get(0) == 'n'){
+//                }
+                binding.root.setBackgroundColor(backgroundColor(icon))}
+
+            it.timezone.let { city->
+                if (!fromSearch) binding.toolbarLayout.title = city
+            }
+            coord = Coord(it.lat,it.lon)
 
             "${it.current.temp.toInt()}℃".also { currentTemperature->
                 currentTemp.text = currentTemperature
@@ -122,10 +134,10 @@ class ScrollingActivity : AppCompatActivity() {
                 feelsLike.text = minTemp
             }
             "${it.current.dew_point.toInt()}℃".also { minTemp ->
-                dew_point.text = minTemp
+                dewPoint.text = minTemp
             }
             // layout extras
-            "${it.current.humidity}".also { humTxt ->
+            "${it.current.humidity}%".also { humTxt ->
                 hum.text = humTxt
             }
             "${it.current.visibility/1000}km".also { visibilityTxt->
@@ -179,15 +191,17 @@ class ScrollingActivity : AppCompatActivity() {
                 if (grantResults.isNotEmpty() &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     locationPermissionGranted = true
+                    getLocation()
                 }else{
                     locationPermissionGranted = false
+//                    val intent = Intent(this,CitySearch::class.java)
+//                    startActivityForResult(intent,1)
+                    binding.scrollView.refreshLayout.isRefreshing = false
                     Toast.makeText(this,"Permission Denied!",Toast.LENGTH_LONG)
                         .show()
                 }
             }
-
             else -> {
-
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults)
             }
         }
@@ -207,7 +221,61 @@ class ScrollingActivity : AppCompatActivity() {
     }
 
     companion object{
-        private const val PERMISSIONS_REQUEST_ACCESS_COURSE_LOCATION = 2
+        private const val PERMISSIONS_REQUEST_ACCESS_COURSE_LOCATION = 101
     }
+    private fun getLocation(){
+        //initialize location service
+        val gpsTracker = GpsTracker(this)
+        if (gpsTracker.canGetLocation()) {
+            val latitude: Double = gpsTracker.getLatitude()
+            val longitude: Double = gpsTracker.getLongitude()
+            if (coord==null){
+                binding.scrollView.refreshLayout.isRefreshing = false
+                val intent = Intent(this,CitySearch::class.java)
+                startActivityForResult(intent,1)
+            }else {
+                coord = Coord(latitude,longitude)
+                viewModel.getDataCord(latitude,longitude)
+            }
+        } else {
+            gpsTracker.showSettingsAlert()
+            binding.scrollView.refreshLayout.isRefreshing = false
+        }
+    }
+
+    private fun backgroundColor(icon: String):Int{
+        return when(icon){
+            //day icons
+//            "04d"->getColor(R.color.teal_700)
+//            "09d"->getColor(R.color.teal_700)
+//            "10d"->getColor(R.color.teal_700)
+//            "11d"->getColor(R.color.teal_700)
+
+            //night icons
+            "03n"->getColor(R.color.darker)
+            "04n"->getColor(R.color.darker)
+            "09n"->getColor(R.color.darker)
+            "010n"->getColor(R.color.darker)
+            "011n"->getColor(R.color.darker)
+            else->{getColor(R.color.teal_700)}
+        }
+    }
+//    private fun backgroundDrawable(icon: String): Drawable? {
+//        return when(icon){
+//            //day icons
+//            "01d"->getDrawable(R.drawable.sun)
+//            "02d"->getDrawable(R.drawable.sun_clouds)
+//            "03d"->getDrawable(R.drawable.clouds)
+//            "10d"->getDrawable(R.drawable.sun_clouds_rain)
+//
+//            //night icons
+//            "03n"->getDrawable(R.drawable.sun)
+//            "04n"->getDrawable(R.drawable.sun)
+//            "09n"->getDrawable(R.drawable.sun)
+//            "010n"->getDrawable(R.drawable.sun)
+//            "011n"->getDrawable(R.drawable.sun)
+//            else->getDrawable(R.drawable.sun)
+//        }
+//    }
 
 }

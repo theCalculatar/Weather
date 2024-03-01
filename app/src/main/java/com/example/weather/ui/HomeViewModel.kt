@@ -33,6 +33,9 @@ class HomeViewModel:ViewModel() {
             ) {
                 if (response.code() == 200) {
                     _data.postValue(response.body())
+                    _error.postValue(CityResponseApi(
+                        "200", "Time out!", null
+                    ))
                 }else{
                     _error.postValue(CityResponseApi(
                         "405", "Time out!", null
@@ -59,7 +62,7 @@ class HomeViewModel:ViewModel() {
                     Log.d("leeApi",Gson().toJson(response.body()).toString())
                     if (response.code() == 200) {
                         _error.postValue(response.body()!!)
-                        getDataCord(response.body()?.city?.coord!!.lat,response.body()?.city?.coord!!.lat)
+                        getDataCord(response.body()?.city?.coord!!.lat,response.body()?.city?.coord!!.lon)
                     }else{
                         response.body()?.let {
                             _error.postValue(it)
