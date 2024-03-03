@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,7 +8,13 @@
     android:fitsSystemWindows="true"
     android:background="@color/teal_700"
     tools:context=".ui.ScrollingActivity">
-
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/background_"
+        android:elevation="0dp"
+        android:scaleType="centerCrop"
+        />
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
@@ -43,13 +50,7 @@
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
-    <ImageView
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:id="@+id/icon"
-        android:elevation="0dp"
-        android:layout_gravity="end|center_vertical"
-        />
+
     <include layout="@layout/content_scrolling"
         android:id="@+id/scrollView"/>
 

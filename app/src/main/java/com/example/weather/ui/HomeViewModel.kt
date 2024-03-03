@@ -59,7 +59,7 @@ class HomeViewModel:ViewModel() {
                     call: Call<CityResponseApi>,
                     response: Response<CityResponseApi>
                 ) {
-                    Log.d("leeApi",Gson().toJson(response.body()).toString())
+//                    Log.d("leeApi",Gson().toJson(response.body()).toString())
                     if (response.code() == 200) {
                         _error.postValue(response.body()!!)
                         getDataCord(response.body()?.city?.coord!!.lat,response.body()?.city?.coord!!.lon)

@@ -64,7 +64,8 @@ class GpsTracker(private val mContext: Context) : Service(),
                         ActivityCompat.requestPermissions(
                             (mContext as Activity),
                             arrayOf(
-                                Manifest.permission.ACCESS_COARSE_LOCATION
+                                Manifest.permission.ACCESS_COARSE_LOCATION,
+                                Manifest.permission.ACCESS_FINE_LOCATION
                             ),
                             101
                         )
@@ -76,11 +77,9 @@ class GpsTracker(private val mContext: Context) : Service(),
                     )
                     Log.d("Network", "Network")
                     if (locationManager != null) {
-                        Log.d("Network", "not null")
-
                         location = locationManager!!.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+
                         if (location != null) {
-                            Log.d("Network", location!!.latitude.toString())
 
                             latitude = location!!.latitude
                             longitude = location!!.longitude
@@ -90,6 +89,8 @@ class GpsTracker(private val mContext: Context) : Service(),
 
                 // if GPS Enabled get lat/long using GPS Services
                 if (isGPSEnabled) {
+//                    Log.d("lee Gps enabled", (location == null).toString())
+
                     if (location == null) {
                         //check the network permission
                         if (ActivityCompat.checkSelfPermission(
@@ -112,13 +113,15 @@ class GpsTracker(private val mContext: Context) : Service(),
                             MIN_TIME_BW_UPDATES,
                             MIN_DISTANCE_CHANGE_FOR_UPDATES.toFloat(), this
                         )
-                        Log.d("GPS Enabled", "GPS Enabled")
+                        Log.d("lee GPS Enabled", "GPS Enabled")
                         if (locationManager != null) {
                             location = locationManager!!
                                 .getLastKnownLocation(LocationManager.GPS_PROVIDER)
                             if (location != null) {
                                 latitude = location!!.latitude
                                 longitude = location!!.longitude
+                                Log.d("lee from gps", location!!.latitude.toString())
+
                             }
                         }
                     }
@@ -185,7 +188,7 @@ class GpsTracker(private val mContext: Context) : Service(),
         alertDialog.setTitle("Location is off")
 
         // Setting Dialog Message
-        alertDialog.setMessage("Location is not enabled. click to go to settings?")
+        alertDialog.setMessage("Location is not enabled. click to go to settings")
 
         // On pressing Settings button
         alertDialog.setPositiveButton("Settings"

@@ -1,10 +1,10 @@
 package com.example.weather.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.Icon
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Bundle
@@ -16,6 +16,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.example.weather.GpsTracker
 import com.example.weather.R
 import com.example.weather.adapter.DailyAdapter
@@ -95,23 +96,29 @@ class ScrollingActivity : AppCompatActivity() {
         }
 
         swipeRefreshLayout.setOnRefreshListener {
-            if (activeNetwork?.isConnectedOrConnecting == false){
-                swipeRefreshLayout.isRefreshing = false
-                Toast.makeText(this, "Please enable network and reload", Toast.LENGTH_SHORT)
-                    .show()
+            activeNetwork?.let {
+                Log.d("lee connected",it.isConnected.toString())
+
+                if (!it.isConnectedOrConnecting) {
+                    Toast.makeText(this, "Please enable network and reload", Toast.LENGTH_SHORT)
+                        .show()
+                    swipeRefreshLayout.isRefreshing = false
+                }
                 return@setOnRefreshListener
             }
             getLocation()
         }
 
         viewModel.data.observe(this){
-
-
-//            binding.icon.setImageResource(R.drawable.sun)
-            it.current.weather[0].icon.also { icon->
-//                if (icon.get(0) == 'n'){
-//                }
-                binding.root.setBackgroundColor(backgroundColor(icon))}
+            val icon = it.current.weather[0].icon
+            icon.also { icon_->
+                if (icon_[2] == 'n' || icon_ > "04d"){
+                    binding.root.setBackgroundColor(getColor(R.color.darker))
+                }else binding.root.setBackgroundColor(getColor(R.color.teal_700))
+            }
+            Glide.with(this)
+                .load(backgroundColor(icon = icon))
+                .into(binding.background)
 
             it.timezone.let { city->
                 if (!fromSearch) binding.toolbarLayout.title = city
@@ -189,7 +196,7 @@ class ScrollingActivity : AppCompatActivity() {
         when (requestCode) {
             PERMISSIONS_REQUEST_ACCESS_COURSE_LOCATION ->{
                 if (grantResults.isNotEmpty() &&
-                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    (grantResults[0] == PackageManager.PERMISSION_GRANTED) || grantResults[1] == PackageManager.PERMISSION_GRANTED ) {
                     locationPermissionGranted = true
                     getLocation()
                 }else{
@@ -229,13 +236,14 @@ class ScrollingActivity : AppCompatActivity() {
         if (gpsTracker.canGetLocation()) {
             val latitude: Double = gpsTracker.getLatitude()
             val longitude: Double = gpsTracker.getLongitude()
-            if (coord==null){
-                binding.scrollView.refreshLayout.isRefreshing = false
+
+            binding.scrollView.refreshLayout.isRefreshing = false
+            if (latitude == 0.0 && coord!=null){
                 val intent = Intent(this,CitySearch::class.java)
                 startActivityForResult(intent,1)
             }else {
-                coord = Coord(latitude,longitude)
-                viewModel.getDataCord(latitude,longitude)
+                coord = coord?:Coord(latitude,longitude)
+                viewModel.getDataCord(coord!!.lat, coord!!.lon)
             }
         } else {
             gpsTracker.showSettingsAlert()
@@ -243,39 +251,28 @@ class ScrollingActivity : AppCompatActivity() {
         }
     }
 
-    private fun backgroundColor(icon: String):Int{
-        return when(icon){
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private fun backgroundColor(icon: String): Drawable? {
+           return when(icon){
             //day icons
-//            "04d"->getColor(R.color.teal_700)
-//            "09d"->getColor(R.color.teal_700)
-//            "10d"->getColor(R.color.teal_700)
-//            "11d"->getColor(R.color.teal_700)
+            "01d"->getDrawable(R.drawable.sunny_gif)
+            "02d"->getDrawable(R.drawable.sunny_gif)
+            "03d"->getDrawable(R.drawable.cloudy_gif)
+            "04d"->getDrawable(R.drawable.cloudy_gif)
+            "09d"->getDrawable(R.drawable.rain_gif)
+            "10d"->getDrawable(R.drawable.rain_gif)
+            "11d"->getDrawable(R.drawable.rain_gif)
 
             //night icons
-            "03n"->getColor(R.color.darker)
-            "04n"->getColor(R.color.darker)
-            "09n"->getColor(R.color.darker)
-            "010n"->getColor(R.color.darker)
-            "011n"->getColor(R.color.darker)
-            else->{getColor(R.color.teal_700)}
+            "01n"->getDrawable(R.drawable.moon)
+            "02n"->getDrawable(R.drawable.cloudy_moon_gif)
+            "03n"->getDrawable(R.drawable.cloudy_moon_gif)
+            "04n"->getDrawable(R.drawable.cloudy_moon_gif)
+            "09n"->getDrawable(R.drawable.rain_gif)
+            "10n"->getDrawable(R.drawable.rain_gif)
+            "11n"->getDrawable(R.drawable.rain_gif)
+            else->{getDrawable(R.drawable.sunny_gif)}
         }
     }
-//    private fun backgroundDrawable(icon: String): Drawable? {
-//        return when(icon){
-//            //day icons
-//            "01d"->getDrawable(R.drawable.sun)
-//            "02d"->getDrawable(R.drawable.sun_clouds)
-//            "03d"->getDrawable(R.drawable.clouds)
-//            "10d"->getDrawable(R.drawable.sun_clouds_rain)
-//
-//            //night icons
-//            "03n"->getDrawable(R.drawable.sun)
-//            "04n"->getDrawable(R.drawable.sun)
-//            "09n"->getDrawable(R.drawable.sun)
-//            "010n"->getDrawable(R.drawable.sun)
-//            "011n"->getDrawable(R.drawable.sun)
-//            else->getDrawable(R.drawable.sun)
-//        }
-//    }
 
 }
